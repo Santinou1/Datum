@@ -1,14 +1,27 @@
-const express = require("express")
+const express = require("express");
+const connectDB = require("./config/database");
+const usuarioRoutes = require("./routes/usuario.routes");
 
+// Inicializar la app de Express
+const app = express();
 
-const app = express()
+// Conectar a la base de datos
+connectDB();
 
-app.get("/", (req,res)=>{
-    res.send("Hola Mundo ")
-})
+// Middleware para parsear JSON
+app.use(express.json());
 
-const PORT= 3000
+// Ruta de bienvenida
+app.get("/", (req, res) => {
+    res.send("Bienvenido a la API de Usuarios");
+});
 
-app.listen(PORT,()=>{
-    console.log(`Servidor corriendo en http://localhost:${PORT}`)
-})
+// Rutas de usuarios
+app.use("/api/usuarios", usuarioRoutes);
+
+const PORT = 3000;
+
+// Iniciar el servidor
+app.listen(PORT, () => {
+    console.log(`Servidor corriendo en http://localhost:${PORT}`);
+});
