@@ -117,14 +117,14 @@ Los siguientes elementos no son obligatorios pero sumarán puntos adicionales en
 
 1. **Campo de contraseña**:
    - Agregar un campo de contraseña al modelo de usuario
-   - Implementar el hash de la contraseña antes de almacenarla (usando bcrypt o similar)
+   - Implementar el hash de la contraseña antes de almacenarla (usando bcrypt o similar) xxxx
    - Asegurar que la contraseña nunca se devuelva en las respuestas de la API
    - Crear un endpoint adicional para verificar credenciales (email/contraseña)
 
 2. **Validaciones avanzadas**:
    - Validación de formato de email
    - Requisitos de complejidad para la contraseña
-   - Validación de edad (número positivo)
+   - Validación de edad (número positivo) <---
 
 ---
 

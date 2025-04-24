@@ -6,7 +6,9 @@ const {
   obtenerUsuarios,
   actualizarUsuario,
   eliminarUsuario,
+  verificarCredenciales
 } = require("../controllers/user.controller");
+
 
 const router = express.Router();
 
@@ -29,5 +31,9 @@ router.put("/:id", actualizarUsuario)
 // Ruta para eliminar un usuario
 
 router.delete("/:id", eliminarUsuario)
+
+// Ruta para verificar credenciales
+
+router.post("/login", verificarCredenciales)
 
 module.exports = router;

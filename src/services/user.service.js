@@ -8,6 +8,20 @@ const crearUsuario = async (usuarioData) => {
     return await nuevoUsuario.save();
   } catch (error) {
     console.error(error);
+
+    if (error.name === "ValidationError") {
+      const errores = Object.values(error.errors).map((err) => err.message);
+      throw {
+        tipo: "ValidationError",
+        mensaje: "Error de validacion",
+        errores: errores,
+      };
+    }
+
+    throw {
+      tipo: error.name || "ERROR",
+      mensaje: error.message || "Ocurrio un error al crear usuario",
+    };
   }
 };
 
@@ -70,10 +84,35 @@ const eliminarUsuario = async (id) => {
   }
 };
 
+// Verificar Credenciales
+
+const verificarCredenciales = async (email, contraseña) => {
+  try {
+    const usuario = await Usuario.findOne({ email }).select("+contraseña");
+
+    if (!usuario) {
+      return { exito: false, mensaje: "Credenciales Invalidas" };
+    }
+
+    if (usuario.contraseña !== contraseña) {
+      return { exito: false, mensaje: "Credenciales Invalidas" };
+    }
+
+    const usuarioSinContraseña = usuario.toObject();
+    delete usuarioSinContraseña.contraseña;
+
+    return { exito: true, usuario: usuarioSinContraseña };
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
 module.exports = {
   crearUsuario,
   obtenerUsuarios,
   obtenerUsuarioPorId,
   actualizarUsuario,
   eliminarUsuario,
+  verificarCredenciales,
 };

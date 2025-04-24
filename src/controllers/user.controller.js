@@ -11,10 +11,17 @@ const crearUsuario = async (req, res) => {
       datos: nuevoUsuario,
     });
   } catch (error) {
-    res.status(404).json({
+    let statusCode = 500;
+    if (error.tipo === "ValidationError") {
+      statusCode = 400;
+    }
+
+    const respuesta = {
       exito: false,
-      mensaje: error,
-    });
+      mensaje: error.mensaje || "Error al crear usuario",
+    };
+
+    res.status(statusCode).json(respuesta);
   }
 };
 
@@ -88,10 +95,48 @@ const eliminarUsuario = async (req, res) => {
   }
 };
 
+const verificarCredenciales = async (req, res) => {
+  try {
+    const { email, contraseña } = req.body;
+
+    if (!email || !contraseña) {
+      return res.status(400).json({
+        exito: false,
+        mensaje: "Email y contraseña requeridos",
+      });
+    }
+
+    const resultado = await usuarioService.verificarCredenciales(
+      email,
+      contraseña
+    );
+
+    if (!resultado.exito) {
+      return res.status(401).json({
+        exito: false,
+        mensaje: resultado.mensaje,
+      });
+    }
+
+    res.status(200).json({
+      exito: true,
+      mensaje: "Credenciales verificadas correctamente",
+      datos: resultado.usuario,
+    });
+  } catch (error) {
+    res.status(500).json({
+      exitos: false,
+      mensaje: "Error al verificar credenciales",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   crearUsuario,
   obtenerUsuarios,
   obtenerUsuarioPorId,
   actualizarUsuario,
   eliminarUsuario,
+  verificarCredenciales
 };
