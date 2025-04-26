@@ -1,9 +1,16 @@
 const Usuario = require("../models/user.model");
 
+const bcrypt = require("bcrypt");
+
 // Crear un nuevo usuario.
 
 const crearUsuario = async (usuarioData) => {
   try {
+    // Hashear la contraseña
+    const salt = await bcrypt.genSalt(10);
+    const contraseñaHasheada = await bcrypt.hash(usuarioData.contraseña, salt);
+    usuarioData.contraseña = contraseñaHasheada;
+
     const nuevoUsuario = new Usuario(usuarioData);
     return await nuevoUsuario.save();
   } catch (error) {
@@ -53,6 +60,15 @@ const obtenerUsuarioPorId = async (id) => {
 
 const actualizarUsuario = async (id, datosActualizados) => {
   try {
+    // Si viene una nueva contraseña, la hasheamos
+    if (datosActualizados.contraseña) {
+      const salt = await bcrypt.genSalt(10);
+      datosActualizados.contraseña = await bcrypt.hash(
+        datosActualizados.contraseña,
+        salt
+      );
+    }
+
     const usuarioActualizado = await Usuario.findByIdAndUpdate(
       id,
       datosActualizados,
@@ -62,9 +78,11 @@ const actualizarUsuario = async (id, datosActualizados) => {
     if (!usuarioActualizado) {
       return "Usuario no encontrado";
     }
+
     return usuarioActualizado;
   } catch (error) {
-    console.log("ESTAS EN UN ERROR " + error);
+    console.log("Error al actualizar usuario:", error);
+    throw error;
   }
 };
 
@@ -91,11 +109,16 @@ const verificarCredenciales = async (email, contraseña) => {
     const usuario = await Usuario.findOne({ email }).select("+contraseña");
 
     if (!usuario) {
-      return { exito: false, mensaje: "Credenciales Invalidas" };
+      return { exito: false, mensaje: "Credenciales inválidas" };
     }
 
-    if (usuario.contraseña !== contraseña) {
-      return { exito: false, mensaje: "Credenciales Invalidas" };
+    const contraseñaValida = await bcrypt.compare(
+      contraseña,
+      usuario.contraseña
+    );
+
+    if (!contraseñaValida) {
+      return { exito: false, mensaje: "Credenciales inválidas" };
     }
 
     const usuarioSinContraseña = usuario.toObject();
