@@ -1,6 +1,7 @@
 const express = require("express");
 const connectDB = require("./config/database");
-const usuarioRoutes= require("./routes/user.routes")
+const usuarioRoutes= require("./routes/user.routes");
+const cors = require("cors");
 
 // Inicializamos la app de Express.
 
@@ -9,6 +10,13 @@ const app = express();
 // Middleware para parsear JSON.
 
 app.use(express.json())
+
+// Configuración de CORS para permitir acceso desde cualquier origen
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 // Conectar a la base de datos.
 
